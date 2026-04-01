@@ -39,3 +39,16 @@ unzip cmake
 
 请确保此时**工具集**、**CMake** 和**调试器**都处于 ✔ 的状态。
 
+在根目录运行以下命令进行构建：
+```shell
+mkdir build
+cd ./build
+cmake ..
+make
+```
+
+## 运行
+```shell
+./RayTracing (此处需输入一个整数参数，它是每像素采样数)
+```
+
