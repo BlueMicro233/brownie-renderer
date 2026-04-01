@@ -1,13 +1,15 @@
 # Brownie Renderer
-**A parallelized path tracing light transport simulator.**
+<p align="center">
+  <em>Brownie Renderer: A Parallelized Path Tracing Light Transport Simulator</em>
+</p>
+
+<p align="center">
+  <img src="eyecandy/2048spp.png" width="500"/>
+</p>
 
 布朗尼渲染器：高质量多核路径追踪渲染器。
 
 本渲染器的目标是成为一个轻量化、可扩展的基于物理的高性能渲染器，在接近实时渲染的低采样率下达到最佳效果。
-
-| ![](https://github.com/BlueMicro233/brownie-renderer/blob/main/eyecandy/4spp.png) | ![](https://github.com/BlueMicro233/brownie-renderer/blob/main/eyecandy/2spp.png) | ![](https://github.com/BlueMicro233/brownie-renderer/blob/main/eyecandy/16spp.png) |
-|:--:|:--:|:--:|
-| 2 spp | 4 spp | 16 spp |
 
 ## Features
 - **无限次反弹路径追踪**
@@ -16,11 +18,16 @@
 - 自定义渲染质量
 - 多核心并行加速
 
-## Future Work
+## 准备做
 - 进一步的采样优化
 - ReSTIR 蓄水池时空重要性重采样算法
 - 多种材质支持
 ...等等。
+
+## 当前效果
+| ![](eyecandy/2spp.png) | ![](eyecandy/4spp.png) | ![](eyecandy/16spp.png) |
+|:--:|:--:|:--:|
+| 2 spp | 4 spp | 16 spp |
 
 ## 构建
 ### on Windows 11 (x86-64)
