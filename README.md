@@ -1,4 +1,18 @@
 # Brownie Renderer
+
+$$
+L_o(x_0, \omega_0) =
+\sum_{n=1}^{\infty}
+\int_{\Omega}
+\cdots
+\int_{\Omega}
+L_e(x_n \rightarrow x_{n-1})
+\prod_{i=1}^{n}
+f_r(x_i, \omega_{i+1}, \omega_i)\,
+G(x_i \leftrightarrow x_{i-1})\,
+d\omega_1 \cdots d\omega_n
+$$
+
 <p align="center">
   <em>Brownie Renderer: A Parallelized Path Tracing Light Transport Simulator</em>
 </p>
