@@ -1,7 +1,9 @@
 # Brownie Renderer
 **A parallelized path tracing light transport simulator.**
 
-布朗尼渲染器：高质量多核路径追踪渲染器。布朗尼渲染器的目标是成为一个轻量化、可扩展的基于物理的高性能渲染器。
+布朗尼渲染器：高质量多核路径追踪渲染器。
+
+本渲染器的目标是成为一个轻量化、可扩展的基于物理的高性能渲染器。
 
 ## Features
 - **无限次反弹路径追踪**
