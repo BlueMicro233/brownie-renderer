@@ -5,7 +5,7 @@
 
 本渲染器的目标是成为一个轻量化、可扩展的基于物理的高性能渲染器，在接近实时渲染的低采样率下达到最佳效果。
 
-| ![](https://github.com/BlueMicro233/brownie-renderer/blob/main/eyecandy/2spp.png) | ![](https://github.com/BlueMicro233/brownie-renderer/blob/main/eyecandy/2spp.png) | ![](https://github.com/BlueMicro233/brownie-renderer/blob/main/eyecandy/2spp.png) |
+| ![](https://github.com/BlueMicro233/brownie-renderer/blob/main/eyecandy/2spp.png) | ![](https://github.com/BlueMicro233/brownie-renderer/blob/main/eyecandy/4spp.png) | ![](https://github.com/BlueMicro233/brownie-renderer/blob/main/eyecandy/16spp.png) |
 |:--:|:--:|:--:|
 | 2 spp | 4 spp | 16 spp |
 
