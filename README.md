@@ -49,6 +49,6 @@ make
 
 ## 运行
 ```shell
-./RayTracing (此处需输入一个整数参数，它是每像素采样数)
+./RayTracing
 ```
 
