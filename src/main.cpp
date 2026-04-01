@@ -15,7 +15,7 @@ int main(int argc, char** argv)
     int spp = 0;
 
     std::cout << "==========================================================" << std::endl;
-    std::cout << "*** Brownie's Renderer ***\n";
+    std::cout << "*** Brownie Renderer ***\n";
     std::cout << "* A parallelized path tracing light transport simulator. *\n";
     std::cout << "==========================================================" << std::endl;
     std::cout << "Input sample per pixel: \n";
