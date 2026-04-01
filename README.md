@@ -35,8 +35,7 @@ sudo apt install build-essential
 unzip cmake
 ```
 
-在 CLion 里进行如下配置：
-<p align="center">
-  <img src="https://github.com/BlueMicro233/GAMES101-projects/blob/main/assets/toolchain.png" width="737" height="550">
-</p>
+在 CLion 里的 **设置** 中找到 **构建、执行、部署**，在工具链页里将 WSL 拉到最上面（会显示“默认”）。
+
+请确保此时**工具集**、**CMake** 和**调试器**都处于 ✔ 的状态。
 
