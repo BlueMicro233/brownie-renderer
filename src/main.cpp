@@ -5,6 +5,9 @@
 #include "Vector.hpp"
 #include "global.hpp"
 #include <chrono>
+#include <thread>
+
+#include "Hardware_Detector.hpp"
 
 // In the main function of the program, we create the scene (create objects and
 // lights) as well as set the options for the render (image width and height,
@@ -14,10 +17,36 @@ int main(int argc, char** argv)
 {
     int spp = 0;
 
+    CPUInfo cpu;
+    cpu.CPU_Detect();
+
     std::cout << "==========================================================" << std::endl;
-    std::cout << "*** Brownie Renderer ***\n";
-    std::cout << "* A parallelized path tracing light transport simulator. *\n";
+    std::cout << "            ***** Brownie Renderer *****                 \n";
+    std::cout << "* A Parallelized Path Tracing Light Transport Simulator *\n";
     std::cout << "==========================================================" << std::endl;
+    std::cout << "                  *** CPU Info ***                       \n";
+    std::cout << "Model: " << cpu.model << std::endl;
+    std::cout << "Threads: " << cpu.logicalCores << std::endl;
+    std::cout << "AVX support: ";
+    if (cpu.hasAVX)
+    {
+        std::cout << "Yes" << std::endl;
+    }
+    else
+    {
+        std::cout << "No" << std::endl;
+    }
+    std::cout << "AVX2 support: ";
+    if (cpu.hasAVX2)
+    {
+        std::cout << "Yes" << std::endl;
+    }
+    else
+    {
+        std::cout << "No" << std::endl;
+    }
+    std::cout << "==========================================================" << std::endl;
+
     std::cout << "Input sample per pixel: \n";
     std::cin >> spp;
 
@@ -30,6 +59,8 @@ int main(int argc, char** argv)
     // Change the definition here to change resolution
     Scene scene(784, 784);
 
+    // Initialize scene geometry
+    // TODO: Make them user-configurable, instead of being hardcoded like this.
     Material* red = new Material(DIFFUSE, Vector3f(0.0f));
     red->Kd = Vector3f(0.63f, 0.065f, 0.05f);
     Material* green = new Material(DIFFUSE, Vector3f(0.0f));
@@ -59,6 +90,7 @@ int main(int argc, char** argv)
 
     scene.buildBVH();
 
+    // Initialize main light transport kernel (renderer).
     Renderer r;
 
     auto start = std::chrono::system_clock::now();
