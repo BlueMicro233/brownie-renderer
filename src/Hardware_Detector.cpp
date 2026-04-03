@@ -1,51 +1,43 @@
 #include "Hardware_Detector.hpp"
-#include <cpuid.h>
 #include <iostream>
-#include <cstring>
-#include <thread>
+#include <sys/sysctl.h>
 
-// x86-based CPU info detection
 std::string Get_CPU_Model()
 {
-    unsigned int eax, ebx, ecx, edx;
-    char model[0x40];
+    char model[48];
+    size_t size = sizeof(model);
 
-    __cpuid(0x80000002, eax, ebx, ecx, edx);
-    memcpy(model, &eax, 4); memcpy(model+4, &ebx, 4);
-    memcpy(model+8, &ecx, 4); memcpy(model+12, &edx, 4);
-
-    __cpuid(0x80000003, eax, ebx, ecx, edx);
-    memcpy(model+16, &eax, 4); memcpy(model+20, &ebx, 4);
-    memcpy(model+24, &ecx, 4); memcpy(model+28, &edx, 4);
-
-    __cpuid(0x80000004, eax, ebx, ecx, edx);
-    memcpy(model+32, &eax, 4); memcpy(model+36, &ebx, 4);
-    memcpy(model+40, &ecx, 4); memcpy(model+44, &edx, 4);
-
-    model[48] = '\0';
-
-    return model;
+    sysctlbyname("machdep.cpu.brand_string", &model, &size, NULL, 0);
+    return std::string(model);
 }
 
-bool Supports_AVX()
-{
-    unsigned int eax, ebx, ecx, edx;
-    __cpuid(1, eax, ebx, ecx, edx);
-    return (ecx & (1 << 28));
+int Get_Logical_Cores() {
+    int cores;
+    size_t size = sizeof(cores);
+    sysctlbyname("hw.logicalcpu", &cores, &size, NULL, 0);
+    return cores;
 }
 
-bool Supports_AVX2()
+int Get_Performance_Cores()
 {
-    unsigned int eax, ebx, ecx, edx;
-    __cpuid_count(7, 0, eax, ebx, ecx, edx);
-    return (ebx & (1 << 5)); // AVX2 bit
+    int cores;
+    size_t size = sizeof(cores);
+    sysctlbyname("hw.perflevel0.physicalcpu", &cores, &size, NULL, 0);
+    return cores;
+}
+
+int Get_Efficiency_Cores()
+{
+    int cores;
+    size_t size = sizeof(cores);
+    sysctlbyname("hw.perflevel1.physicalcpu", &cores, &size, NULL, 0);
+    return cores;
 }
 
 void CPUInfo::CPU_Detect()
 {
     model = Get_CPU_Model();
-    logicalCores = std::thread::hardware_concurrency();
-    hasAVX = Supports_AVX();
-    hasAVX2 = Supports_AVX2();
+    logicalCores = Get_Logical_Cores();
+    perfCores = Get_Performance_Cores();
+    effiCores = Get_Efficiency_Cores();
 }
-

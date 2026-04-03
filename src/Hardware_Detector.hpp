@@ -9,8 +9,8 @@ struct CPUInfo
 {
     std::string model;
     unsigned logicalCores;
-    bool hasAVX;
-    bool hasAVX2;
+    unsigned perfCores;
+    unsigned effiCores;
 
     void CPU_Detect();
 };
