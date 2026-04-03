@@ -1,6 +1,7 @@
 mod bounds3;
 mod bvh;
 mod global;
+mod hardware_detector;
 mod intersection;
 mod material;
 mod object;
@@ -14,6 +15,7 @@ use std::io;
 use std::sync::Arc;
 use std::time::Instant;
 
+use hardware_detector::CpuInfo;
 use material::{Material, MaterialType};
 use renderer::Renderer;
 use scene::Scene;
@@ -21,9 +23,17 @@ use triangle::MeshTriangle;
 use vector::Vec3;
 
 fn main() -> Result<(), String> {
+    let cpu = CpuInfo::detect();
+
     println!("==========================================================");
-    println!("*** Brownie Renderer (Rust) ***");
-    println!("* A parallelized path tracing light transport simulator. *");
+    println!("            ***** Brownie Renderer *****                 ");
+    println!("* A Parallelized Path Tracing Light Transport Simulator *");
+    println!("==========================================================");
+    println!("                  *** CPU Info ***                       ");
+    println!("Model: {}", cpu.model);
+    println!("Threads: {}", cpu.logical_cores);
+    println!("AVX support: {}", if cpu.has_avx { "Yes" } else { "No" });
+    println!("AVX2 support: {}", if cpu.has_avx2 { "Yes" } else { "No" });
     println!("==========================================================");
     println!("Input sample per pixel:");
 
