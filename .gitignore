@@ -3,3 +3,6 @@ build/
 cmake-build-debug/
 /binary.ppm
 /rust/target/
+/binary.ppm
+rust/binary.ppm
+.DS_Store

@@ -79,31 +79,31 @@ fn main() -> Result<(), String> {
     };
 
     let bunny = Arc::new(
-        MeshTriangle::new("models/cornellbox/bunny.obj", bunny_mat)
+        MeshTriangle::new("../models/cornellbox/bunny.obj", bunny_mat)
             .map_err(|e| format!("failed to load bunny mesh: {e}"))?,
     );
     let floor = Arc::new(
-        MeshTriangle::new("models/cornellbox/floor.obj", white.clone())
+        MeshTriangle::new("../models/cornellbox/floor.obj", white.clone())
             .map_err(|e| format!("failed to load floor mesh: {e}"))?,
     );
     let shortbox = Arc::new(
-        MeshTriangle::new("models/cornellbox/shortbox.obj", white.clone())
+        MeshTriangle::new("../models/cornellbox/shortbox.obj", white.clone())
             .map_err(|e| format!("failed to load shortbox mesh: {e}"))?,
     );
     let tallbox = Arc::new(
-        MeshTriangle::new("models/cornellbox/tallbox.obj", white.clone())
+        MeshTriangle::new("../models/cornellbox/tallbox.obj", white.clone())
             .map_err(|e| format!("failed to load tallbox mesh: {e}"))?,
     );
     let left = Arc::new(
-        MeshTriangle::new("models/cornellbox/left.obj", red)
+        MeshTriangle::new("../models/cornellbox/left.obj", red)
             .map_err(|e| format!("failed to load left wall mesh: {e}"))?,
     );
     let right = Arc::new(
-        MeshTriangle::new("models/cornellbox/right.obj", green)
+        MeshTriangle::new("../models/cornellbox/right.obj", green)
             .map_err(|e| format!("failed to load right wall mesh: {e}"))?,
     );
     let light_obj = Arc::new(
-        MeshTriangle::new("models/cornellbox/light.obj", light)
+        MeshTriangle::new("../models/cornellbox/light.obj", light)
             .map_err(|e| format!("failed to load light mesh: {e}"))?,
     );
 
