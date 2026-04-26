@@ -20,7 +20,8 @@ $$
 - **低采样高收敛**
 - 完美的漫反射表面渲染
 - 自定义渲染质量
-- 多核心并行加速
+- 多核心并行加速（OpenMP）
+- 跨平台：macOS（Apple Silicon + Intel）、Linux（x86-64 + ARM64）
 
 ## 准备做的
 - 进一步的采样优化
@@ -35,32 +36,72 @@ $$
 | 2 spp | 4 spp | 16 spp |
 
 ## 构建
-### on Windows 11 (x86-64)
-**你需要安装**：
-- Windows Subsystem for Linux 2 (WSL 2)
-  - 🐧安装一个 Linux 发行版（<img src="https://cdn.simpleicons.org/archlinux/1793D1" height="25"/>Arch Linux, <img src="https://cdn.simpleicons.org/ubuntu/E95420" height="25"/>Ubuntu, etc.）
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/clion/clion-original.svg" height="25"/> JetBrains CLion
 
-接着，在 Linux 下安装必要的 C++ 开发工具（CMake, 编译器等）：
+### 前置条件
+
+| 平台 | 编译器 | OpenMP |
+|------|--------|--------|
+| macOS (Apple Silicon) | Xcode CLT (Apple Clang) | `brew install libomp` |
+| macOS (Intel) | Xcode CLT (Apple Clang) | `brew install libomp` |
+| Linux (x86-64) | GCC / Clang | 系统自带（`gcc` 已包含） |
+| Linux (ARM64) | GCC / Clang | 系统自带（`gcc` 已包含） |
+
+### 使用 Makefile（推荐）
+
 ```shell
-sudo apt install build-essential
-unzip cmake
+make          # 编译
+make run      # 编译并运行
+make clean    # 清理构建产物
 ```
 
-在 CLion 里的 **设置** 中找到 **构建、执行、部署**，在工具链页里将 WSL 拉到最上面（会显示“默认”）。
+### 使用 CMake
 
-请确保此时**工具集**、**CMake** 和**调试器**都处于 ✔ 的状态。
-
-在根目录运行以下命令进行构建：
 ```shell
-mkdir build
-cd ./build
-cmake ..
+mkdir build && cd build
+cmake .. -DCMAKE_CXX_FLAGS="-Xpreprocessor -fopenmp" -DCMAKE_EXE_LINKER_FLAGS="-L$(brew --prefix libomp)/lib -lomp"
 make
 ```
 
+> Linux 下不需要 `-Xpreprocessor` 和 libomp 路径，直接 `cmake .. && make` 即可。
+
 ## 运行
+
 ```shell
-./RayTracing
+./build/RayTracing
 ```
 
+或
+
+```shell
+make run
+```
+
+程序会提示输入每像素采样数（samples per pixel, spp），输入数字后开始渲染。
+
+## 项目结构
+
+```
+├── Makefile                  # 跨平台构建文件
+├── CMakeLists.txt            # CMake 构建配置（备选）
+├── src/
+│   ├── main.cpp              # 入口
+│   ├── Renderer.cpp/hpp      # 渲染器主循环
+│   ├── Scene.cpp/hpp         # 场景管理
+│   ├── BVH.cpp/hpp           # 层次包围盒加速结构
+│   ├── Vector.cpp/hpp        # 向量数学库
+│   ├── Triangle.hpp          # 三角形网格
+│   ├── Sphere.hpp            # 球体
+│   ├── Material.hpp          # 材质（漫反射）
+│   ├── Light.hpp             # 光照
+│   ├── AreaLight.hpp         # 面光源
+│   ├── Object.hpp            # 物体基类
+│   ├── Ray.hpp               # 光线
+│   ├── Intersection.hpp      # 交点
+│   ├── Bounds3.hpp           # 包围盒
+│   ├── global.hpp            # 全局常量
+│   ├── OBJ_Loader.hpp        # OBJ 文件加载器
+│   └── Hardware_Detector.cpp/hpp  # CPU 信息检测（跨平台）
+├── models/                   # 模型文件
+├── eyecandy/                 # 渲染结果截图
+└── README.md
+```
