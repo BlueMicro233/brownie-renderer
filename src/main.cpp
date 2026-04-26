@@ -61,13 +61,13 @@ int main(int argc, char** argv)
     Material* bunny_mat = new Material(DIFFUSE, Vector3f(0.0f));
     bunny_mat->Kd = Vector3f(0.54f, 0.54f, 0.54f);
 
-    MeshTriangle floor("../models/cornellbox/floor.obj", white);
-    MeshTriangle shortbox("../models/cornellbox/shortbox.obj", white);
-    MeshTriangle tallbox("../models/cornellbox/tallbox.obj", white);
-    MeshTriangle left("../models/cornellbox/left.obj", red);
-    MeshTriangle right("../models/cornellbox/right.obj", green);
-    MeshTriangle light_("../models/cornellbox/light.obj", light);
-    MeshTriangle bunny("../models/cornellbox/bunny.obj", white);
+    MeshTriangle floor("models/cornellbox/floor.obj", white);
+    MeshTriangle shortbox("models/cornellbox/shortbox.obj", white);
+    MeshTriangle tallbox("models/cornellbox/tallbox.obj", white);
+    MeshTriangle left("models/cornellbox/left.obj", red);
+    MeshTriangle right("models/cornellbox/right.obj", green);
+    MeshTriangle light_("models/cornellbox/light.obj", light);
+    MeshTriangle bunny("models/cornellbox/bunny.obj", white);
 
     scene.Add(&bunny);
     scene.Add(&floor);
