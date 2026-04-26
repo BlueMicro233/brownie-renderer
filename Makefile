@@ -1,86 +1,56 @@
-# Brownie Renderer — Cross-platform Makefile
+# Brownie Renderer — Cross-platform Makefile wrapper around CMake
+#
+# Delegates the actual build to CMake, so CMakeLists.txt remains the
+# single source of truth for source files, targets, and dependencies.
 #
 # Targets:
-#   make          — build the renderer
+#   make          — configure + build the renderer (debug)
+#   make release  — configure + build with -O3
 #   make run      — build and run
-#   make clean    — remove build artifacts
+#   make clean    — remove build directory
 #   make help     — show this message
 
-CXX       ?= c++
-CXX_STD   := -std=c++17
-CXXFLAGS  := $(CXX_STD) -O3 -Wall -Wextra -Wno-unused-parameter
-LDFLAGS   :=
-LDLIBS    :=
-
-SRCDIR    := src
 BUILDDIR  := build
-TARGET    := $(BUILDDIR)/RayTracing
-
-# Gather source files
-CPP_FILES := $(wildcard $(SRCDIR)/*.cpp)
-OBJ_FILES := $(CPP_FILES:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.o)
 
 # ---------------------------------------------------------------------------
-# Platform detection
+# Platform detection & CMake flags
 # ---------------------------------------------------------------------------
 UNAME_S   := $(shell uname -s)
 UNAME_M   := $(shell uname -m)
+CMAKE     := cmake
+CMAKE_OPT :=
 
-# ---------------------------------------------------------------------------
-# macOS: Apple Clang + libomp
-# ---------------------------------------------------------------------------
+# macOS: Apple Clang needs -Xpreprocessor -fopenmp and libomp paths
+# We set OpenMP_* variables explicitly so CMake's FindOpenMP skips its
+# broken detection test and uses our flags directly.
 ifeq ($(UNAME_S),Darwin)
-    CXXFLAGS += -Xpreprocessor -fopenmp
-    LDFLAGS  += -L/opt/homebrew/opt/libomp/lib
-    LDLIBS   += -lomp
-
-    # Homebrew include path
-    LDFLAGS  += -I/opt/homebrew/opt/libomp/include
-    CXXFLAGS += -I/opt/homebrew/opt/libomp/include
-
-# ---------------------------------------------------------------------------
-# Linux: GCC / Clang with native OpenMP
-# ---------------------------------------------------------------------------
-else ifeq ($(UNAME_S),Linux)
-    CXXFLAGS += -fopenmp
-    LDLIBS   += -fopenmp
-endif
-
-# ---------------------------------------------------------------------------
-# Architecture-specific flags
-# ---------------------------------------------------------------------------
-ifneq (,$(filter $(UNAME_M),x86_64 amd64))
-    CXXFLAGS += -mavx -mavx2
-else ifneq (,$(filter $(UNAME_M),arm64 aarch64))
-    CXXFLAGS += -D__ARM_NEON
+    OMP_PREFIX := $(shell brew --prefix libomp)
+    CMAKE_OPT += -DCMAKE_CXX_FLAGS="-I$(OMP_PREFIX)/include"
+    CMAKE_OPT += -DCMAKE_EXE_LINKER_FLAGS="-L$(OMP_PREFIX)/lib -lomp"
+    CMAKE_OPT += -DOpenMP_CXX_FLAGS="-Xpreprocessor -fopenmp -I$(OMP_PREFIX)/include"
+    CMAKE_OPT += -DOpenMP_C_FLAGS="-Xpreprocessor -fopenmp -I$(OMP_PREFIX)/include"
+    CMAKE_OPT += -DOpenMP_CXX_LIB_NAMES="libomp"
+    CMAKE_OPT += -DOpenMP_C_LIB_NAMES="libomp"
+    CMAKE_OPT += -DOpenMP_libomp_LIBRARY="$(OMP_PREFIX)/lib/libomp.dylib"
 endif
 
 # ---------------------------------------------------------------------------
 # Rules
 # ---------------------------------------------------------------------------
-.PHONY: all run clean help
+.PHONY: all release run clean help
 
-all: $(TARGET)
+all: $(BUILDDIR)/Makefile
+	$(CMAKE) --build $(BUILDDIR)
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(SRCDIR)/%.hpp
-	@mkdir -p $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+release: CMAKE_OPT += -DCMAKE_BUILD_TYPE=Release
+release: $(BUILDDIR)/Makefile
+	$(CMAKE) --build $(BUILDDIR)
 
-# Object files whose headers don't follow the naming convention
-$(BUILDDIR)/main.o: $(SRCDIR)/main.cpp
-	@mkdir -p $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(BUILDDIR)/Hardware_Detector.o: $(SRCDIR)/Hardware_Detector.cpp $(SRCDIR)/Hardware_Detector.hpp
-	@mkdir -p $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(TARGET): $(OBJ_FILES)
-	@mkdir -p $(BUILDDIR)
-	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) $(LDLIBS) -o $@
+$(BUILDDIR)/Makefile:
+	$(CMAKE) -B $(BUILDDIR) $(CMAKE_OPT)
 
 run: all
-	$(TARGET)
+	./$(BUILDDIR)/RayTracing
 
 clean:
 	rm -rf $(BUILDDIR)
@@ -88,10 +58,10 @@ clean:
 help:
 	@echo "Brownie Renderer — Cross-platform Makefile"
 	@echo ""
-	@echo "  make        — build the renderer"
-	@echo "  make run    — build and run"
-	@echo "  make clean  — remove build artifacts"
+	@echo "  make          — configure + build (debug)"
+	@echo "  make release  — configure + build (release)"
+	@echo "  make run      — build and run"
+	@echo "  make clean    — remove build directory"
 	@echo ""
-	@echo "Detected platform: $(UNAME_S) / $(UNAME_M)"
-	@echo "Compiler: $(CXX)"
-	@echo "Flags: $(CXXFLAGS)"
+	@echo "Detected: $(UNAME_S) / $(UNAME_M)"
+	@echo "CMake options: $(CMAKE_OPT)"
