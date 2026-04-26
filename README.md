@@ -37,83 +37,88 @@ $$
 
 ## 构建
 
-### 前置条件
+### macOS
 
-| 平台 | 编译器 | OpenMP |
-|------|--------|--------|
-| macOS (Apple Silicon) | Xcode CLT (Apple Clang) | `brew install libomp` |
-| macOS (Intel) | Xcode CLT (Apple Clang) | `brew install libomp` |
-| Linux (x86-64) | GCC / Clang | 系统自带（`gcc` 已包含） |
-| Linux (ARM64) | GCC / Clang | 系统自带（`gcc` 已包含） |
-
-### 使用 Makefile（推荐）
+需要 Xcode Command Line Tools 和 libomp：
 
 ```shell
-make          # 编译 Debug 版本（build/debug/）
-make release  # 编译 Release 版本（build/release/，-O3）
-make run      # 编译 Release 并运行
-make clean    # 清理所有构建产物
+brew install libomp
 ```
 
-> `make run` 自动使用 Release 编译。如果只需要编译不运行，用 `make release`。
+编译：
 
-### 使用 CMake
+```shell
+make          # Debug（build/debug/）
+make release  # Release（build/release/，-O3）
+make run      # Release 编译 + 运行
+make clean
+```
+
+也可以直接用 CMake：
 
 ```shell
 mkdir build && cd build
-cmake .. -DCMAKE_CXX_FLAGS="-Xpreprocessor -fopenmp" -DCMAKE_EXE_LINKER_FLAGS="-L$(brew --prefix libomp)/lib -lomp"
+cmake .. \
+  -DCMAKE_CXX_FLAGS="-Xpreprocessor -fopenmp -I$(brew --prefix libomp)/include" \
+  -DCMAKE_EXE_LINKER_FLAGS="-L$(brew --prefix libomp)/lib -lomp"
 make
 ```
 
-> Linux 下不需要 `-Xpreprocessor` 和 libomp 路径，直接 `cmake .. && make` 即可。
+### Linux
 
-## 运行
+需要 GCC（自带 OpenMP）和 CMake：
 
 ```shell
-./build/release/RayTracing
+sudo apt install g++ cmake make       # Debian / Ubuntu
+sudo dnf install gcc-c++ cmake make   # Fedora
 ```
 
-或
+编译：
+
+```shell
+make          # Debug
+make release  # Release（-O3）
+make run      # Release 编译 + 运行
+make clean
+```
+
+直接用 CMake（不需要任何特殊 flag）：
+
+```shell
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make
+```
+
+### Docker
+
+```shell
+docker build -t brownie-renderer .
+```
+
+## 运行
 
 ```shell
 make run
 ```
 
+或
+
+```shell
+./build/release/RayTracing
+```
+
 程序会提示输入每像素采样数（samples per pixel, spp），输入数字后开始渲染。
 
-### Apple Silicon 性能提示
+## Benchmark
 
-M5 等芯片包含性能核心 (P-cores) 和能效核心 (E-cores)。
+以下数据在 **16 spp**、Cornell Box 场景、784x784 分辨率下测得。
 
-- **追求最高速度**：默认 18 线程（最快，但 E-cores 功耗大）
-- **追求能效**：`OMP_NUM_THREADS=6 make run`（仅 P-cores，速度仅慢 ~20%，CPU 功耗减半）
+| 平台 | 编译 | 线程 | 墙钟 | User CPU |
+|------|------|------|------|----------|
+| Apple M5 Max (macOS) | Release | 18 (6P+12E) | 3.8s | 61.1s |
+| Apple M5 Max (macOS) | Release | 6 (P-cores) | 4.7s | 27.8s |
+| Apple M5 Max (macOS) | Debug | 18 (6P+12E) | 16.0s | 258.2s |
+| Rosetta 2 x86_64 (Docker) | Release | 18 (virtual) | 4.9s | 83.7s |
 
-实测：18 线程 3.8s，6 线程 4.7s（16 spp 渲染）。
-
-## 项目结构
-
-```
-├── Makefile                  # 跨平台构建文件
-├── CMakeLists.txt            # CMake 构建配置（备选）
-├── src/
-│   ├── main.cpp              # 入口
-│   ├── Renderer.cpp/hpp      # 渲染器主循环
-│   ├── Scene.cpp/hpp         # 场景管理
-│   ├── BVH.cpp/hpp           # 层次包围盒加速结构
-│   ├── Vector.cpp/hpp        # 向量数学库
-│   ├── Triangle.hpp          # 三角形网格
-│   ├── Sphere.hpp            # 球体
-│   ├── Material.hpp          # 材质（漫反射）
-│   ├── Light.hpp             # 光照
-│   ├── AreaLight.hpp         # 面光源
-│   ├── Object.hpp            # 物体基类
-│   ├── Ray.hpp               # 光线
-│   ├── Intersection.hpp      # 交点
-│   ├── Bounds3.hpp           # 包围盒
-│   ├── global.hpp            # 全局常量
-│   ├── OBJ_Loader.hpp        # OBJ 文件加载器
-│   └── Hardware_Detector.cpp/hpp  # CPU 信息检测（跨平台）
-├── models/                   # 模型文件
-├── eyecandy/                 # 渲染结果截图
-└── README.md
-```
+> Apple Silicon 上 E-cores 对渲染加速贡献很小但功耗不小。用 `OMP_NUM_THREADS=6 make run` 仅用 P-cores 可以在几乎不损失速度的前提下大幅降低 CPU 功耗。
