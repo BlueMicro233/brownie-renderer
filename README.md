@@ -49,10 +49,13 @@ $$
 ### 使用 Makefile（推荐）
 
 ```shell
-make          # 编译
-make run      # 编译并运行
-make clean    # 清理构建产物
+make          # 编译 Debug 版本（build/debug/）
+make release  # 编译 Release 版本（build/release/，-O3）
+make run      # 编译 Release 并运行
+make clean    # 清理所有构建产物
 ```
+
+> `make run` 自动使用 Release 编译。如果只需要编译不运行，用 `make release`。
 
 ### 使用 CMake
 
@@ -67,7 +70,7 @@ make
 ## 运行
 
 ```shell
-./build/RayTracing
+./build/release/RayTracing
 ```
 
 或
@@ -77,6 +80,15 @@ make run
 ```
 
 程序会提示输入每像素采样数（samples per pixel, spp），输入数字后开始渲染。
+
+### Apple Silicon 性能提示
+
+M5 等芯片包含性能核心 (P-cores) 和能效核心 (E-cores)。
+
+- **追求最高速度**：默认 18 线程（最快，但 E-cores 功耗大）
+- **追求能效**：`OMP_NUM_THREADS=6 make run`（仅 P-cores，速度仅慢 ~20%，CPU 功耗减半）
+
+实测：18 线程 3.8s，6 线程 4.7s（16 spp 渲染）。
 
 ## 项目结构
 

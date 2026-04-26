@@ -1,16 +1,14 @@
 # Brownie Renderer — Cross-platform Makefile wrapper around CMake
 #
-# Delegates the actual build to CMake, so CMakeLists.txt remains the
-# single source of truth for source files, targets, and dependencies.
-#
 # Targets:
-#   make          — configure + build the renderer (debug)
-#   make release  — configure + build with -O3
-#   make run      — build and run
-#   make clean    — remove build directory
+#   make          — configure + build (debug, build/debug/)
+#   make release  — configure + build (release, build/release/)
+#   make run      — build release + run
+#   make clean    — remove all build directories
 #   make help     — show this message
 
-BUILDDIR  := build
+BUILDDIR  := build/debug
+TARGET    := $(BUILDDIR)/RayTracing
 
 # ---------------------------------------------------------------------------
 # Platform detection & CMake flags
@@ -21,8 +19,6 @@ CMAKE     := cmake
 CMAKE_OPT :=
 
 # macOS: Apple Clang needs -Xpreprocessor -fopenmp and libomp paths
-# We set OpenMP_* variables explicitly so CMake's FindOpenMP skips its
-# broken detection test and uses our flags directly.
 ifeq ($(UNAME_S),Darwin)
     OMP_PREFIX := $(shell brew --prefix libomp)
     CMAKE_OPT += -DCMAKE_CXX_FLAGS="-I$(OMP_PREFIX)/include"
@@ -42,6 +38,7 @@ endif
 all: $(BUILDDIR)/Makefile
 	$(CMAKE) --build $(BUILDDIR)
 
+release: BUILDDIR := build/release
 release: CMAKE_OPT += -DCMAKE_BUILD_TYPE=Release
 release: $(BUILDDIR)/Makefile
 	$(CMAKE) --build $(BUILDDIR)
@@ -49,18 +46,18 @@ release: $(BUILDDIR)/Makefile
 $(BUILDDIR)/Makefile:
 	$(CMAKE) -B $(BUILDDIR) $(CMAKE_OPT)
 
-run: all
+run: release
 	./$(BUILDDIR)/RayTracing
 
 clean:
-	rm -rf $(BUILDDIR)
+	rm -rf build
 
 help:
 	@echo "Brownie Renderer — Cross-platform Makefile"
 	@echo ""
-	@echo "  make          — configure + build (debug)"
-	@echo "  make release  — configure + build (release)"
-	@echo "  make run      — build and run"
+	@echo "  make          — configure + build (debug,   build/debug/)"
+	@echo "  make release  — configure + build (release, build/release/)"
+	@echo "  make run      — build release + run"
 	@echo "  make clean    — remove build directory"
 	@echo ""
 	@echo "Detected: $(UNAME_S) / $(UNAME_M)"
