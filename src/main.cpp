@@ -27,24 +27,13 @@ int main(int argc, char** argv)
     std::cout << "                  *** CPU Info ***                       \n";
     std::cout << "Model: " << cpu.model << std::endl;
     std::cout << "Threads: " << cpu.logicalCores << std::endl;
-    std::cout << "AVX support: ";
-    if (cpu.hasAVX)
-    {
-        std::cout << "Yes" << std::endl;
-    }
-    else
-    {
-        std::cout << "No" << std::endl;
-    }
-    std::cout << "AVX2 support: ";
-    if (cpu.hasAVX2)
-    {
-        std::cout << "Yes" << std::endl;
-    }
-    else
-    {
-        std::cout << "No" << std::endl;
-    }
+
+    if (cpu.perfCores > 0 || cpu.effiCores > 0)
+        std::cout << "Cores: " << cpu.perfCores << " P + " << cpu.effiCores << " E" << std::endl;
+
+    std::cout << "AVX support: " << (cpu.hasAVX ? "Yes" : "No") << std::endl;
+    std::cout << "AVX2 support: " << (cpu.hasAVX2 ? "Yes" : "No") << std::endl;
+    std::cout << "NEON support: " << (cpu.hasNEON ? "Yes" : "No") << std::endl;
     std::cout << "==========================================================" << std::endl;
 
     std::cout << "Input sample per pixel: \n";
@@ -72,13 +61,13 @@ int main(int argc, char** argv)
     Material* bunny_mat = new Material(DIFFUSE, Vector3f(0.0f));
     bunny_mat->Kd = Vector3f(0.54f, 0.54f, 0.54f);
 
-    MeshTriangle floor("../models/cornellbox/floor.obj", white);
-    MeshTriangle shortbox("../models/cornellbox/shortbox.obj", white);
-    MeshTriangle tallbox("../models/cornellbox/tallbox.obj", white);
-    MeshTriangle left("../models/cornellbox/left.obj", red);
-    MeshTriangle right("../models/cornellbox/right.obj", green);
-    MeshTriangle light_("../models/cornellbox/light.obj", light);
-    MeshTriangle bunny("../models/cornellbox/bunny.obj", white);
+    MeshTriangle floor("models/cornellbox/floor.obj", white);
+    MeshTriangle shortbox("models/cornellbox/shortbox.obj", white);
+    MeshTriangle tallbox("models/cornellbox/tallbox.obj", white);
+    MeshTriangle left("models/cornellbox/left.obj", red);
+    MeshTriangle right("models/cornellbox/right.obj", green);
+    MeshTriangle light_("models/cornellbox/light.obj", light);
+    MeshTriangle bunny("models/cornellbox/bunny.obj", white);
 
     scene.Add(&bunny);
     scene.Add(&floor);
